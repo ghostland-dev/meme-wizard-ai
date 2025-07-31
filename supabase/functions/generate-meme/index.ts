@@ -59,11 +59,11 @@ serve(async (req) => {
       );
     }
 
-    // Generate meme using OpenAI
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiApiKey) {
+    // Generate meme using Magic Studio
+    const magicStudioSecret = Deno.env.get('MAGIC_STUDIO_CLIENT_SECRET');
+    if (!magicStudioSecret) {
       return new Response(
-        JSON.stringify({ error: 'Configuration OpenAI manquante' }),
+        JSON.stringify({ error: 'Configuration Magic Studio manquante' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
@@ -75,19 +75,17 @@ serve(async (req) => {
 
     const startTime = Date.now();
 
-    const response = await fetch('https://api.openai.com/v1/images/generations', {
+    const response = await fetch('https://api.magicstudio.com/api/ai-art-generator', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'X-Magic-Studio-Secret': magicStudioSecret,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'dall-e-3',
         prompt: memePrompt,
-        n: 1,
-        size: '1024x1024',
-        quality: 'standard',
-        response_format: 'url'
+        width: 1024,
+        height: 1024,
+        format: 'png'
       }),
     });
 
@@ -95,16 +93,16 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', errorData);
+      console.error('Magic Studio API error:', errorData);
       
       // Record failed generation
       await supabaseClient.from('meme_generations').insert({
         user_id: user.id,
         prompt: memePrompt,
-        model_used: 'gpt-image-1',
+        model_used: 'magic-studio',
         generation_time_ms: generationTime,
         status: 'failed',
-        error_message: 'OpenAI API error'
+        error_message: 'Magic Studio API error'
       });
 
       return new Response(
@@ -114,7 +112,7 @@ serve(async (req) => {
     }
 
     const imageData = await response.json();
-    const generatedImageUrl = imageData.data[0].url;
+    const generatedImageUrl = imageData.url;
 
     // Download and store the image in Supabase Storage
     const imageResponse = await fetch(generatedImageUrl);
@@ -168,7 +166,7 @@ serve(async (req) => {
       user_id: user.id,
       meme_id: meme.id,
       prompt: memePrompt,
-      model_used: 'gpt-image-1',
+      model_used: 'magic-studio',
       generation_time_ms: generationTime,
       status: 'completed'
     });
