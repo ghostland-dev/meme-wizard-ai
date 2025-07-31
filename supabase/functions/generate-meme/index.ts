@@ -59,11 +59,11 @@ serve(async (req) => {
       );
     }
 
-    // Generate meme using Magic Studio
-    const magicStudioSecret = Deno.env.get('MAGIC_STUDIO_CLIENT_SECRET');
-    if (!magicStudioSecret) {
+    // Generate meme using Runware API
+    const runwareApiKey = Deno.env.get('RUNWARE_API_KEY');
+    if (!runwareApiKey) {
       return new Response(
-        JSON.stringify({ error: 'Configuration Magic Studio manquante' }),
+        JSON.stringify({ error: 'Configuration Runware manquante' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
@@ -75,34 +75,46 @@ serve(async (req) => {
 
     const startTime = Date.now();
 
-    const response = await fetch('https://api.magicstudio.com/api/ai-art-generator', {
+    const response = await fetch('https://api.runware.ai/v1', {
       method: 'POST',
       headers: {
-        'X-Magic-Studio-Secret': magicStudioSecret,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: memePrompt,
-        width: 1024,
-        height: 1024,
-        format: 'png'
-      }),
+      body: JSON.stringify([
+        {
+          taskType: "authentication",
+          apiKey: runwareApiKey
+        },
+        {
+          taskType: "imageInference",
+          taskUUID: crypto.randomUUID(),
+          positivePrompt: memePrompt,
+          width: 1024,
+          height: 1024,
+          model: "runware:100@1",
+          numberResults: 1,
+          outputFormat: "WEBP",
+          CFGScale: 1,
+          scheduler: "FlowMatchEulerDiscreteScheduler",
+          strength: 0.8
+        }
+      ]),
     });
 
     const generationTime = Date.now() - startTime;
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('Magic Studio API error:', errorData);
+      console.error('Runware API error:', errorData);
       
       // Record failed generation
       await supabaseClient.from('meme_generations').insert({
         user_id: user.id,
         prompt: memePrompt,
-        model_used: 'magic-studio',
+        model_used: 'runware',
         generation_time_ms: generationTime,
         status: 'failed',
-        error_message: 'Magic Studio API error'
+        error_message: 'Runware API error'
       });
 
       return new Response(
@@ -111,8 +123,9 @@ serve(async (req) => {
       );
     }
 
-    const imageData = await response.json();
-    const generatedImageUrl = imageData.url;
+    const apiResponse = await response.json();
+    const imageData = apiResponse.data.find((item: any) => item.taskType === 'imageInference');
+    const generatedImageUrl = imageData.imageURL;
 
     // Download and store the image in Supabase Storage
     const imageResponse = await fetch(generatedImageUrl);
@@ -166,7 +179,7 @@ serve(async (req) => {
       user_id: user.id,
       meme_id: meme.id,
       prompt: memePrompt,
-      model_used: 'magic-studio',
+      model_used: 'runware',
       generation_time_ms: generationTime,
       status: 'completed'
     });
