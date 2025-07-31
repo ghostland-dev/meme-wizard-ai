@@ -1,1 +1,4 @@
 project_id = "wrflbucwvcvehbvwnvis"
+
+[functions.generate-meme]
+verify_jwt = true
