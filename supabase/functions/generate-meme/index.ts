@@ -33,13 +33,18 @@ serve(async (req) => {
     }
 
     // Check user credits
-    const { data: profile } = await supabaseClient
+    console.log('Checking credits for user:', user.id);
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('credits')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
+
+    console.log('Profile data:', profile);
+    console.log('Profile error:', profileError);
 
     if (!profile || profile.credits <= 0) {
+      console.log('Credits check failed - profile:', profile, 'credits:', profile?.credits);
       return new Response(
         JSON.stringify({ error: 'Crédits insuffisants' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
