@@ -1,3 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://meme-wizard-ai.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# Allow specific bots
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +20,7 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Disallow admin areas (if any)
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$

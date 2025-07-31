@@ -12,7 +12,13 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, imageUrl, style = 'viral' } = await req.json();
+    console.log('=== MEME GENERATION REQUEST START ===');
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
+    
+    const requestBody = await req.json();
+    console.log('Request body:', requestBody);
+    
+    const { prompt, imageUrl, style = 'viral' } = requestBody;
 
     // Get authenticated user
     const authHeader = req.headers.get('Authorization')!;
@@ -113,11 +119,21 @@ serve(async (req) => {
     }
 
     const imageData = await response.json();
-    // gpt-image-1 returns base64 data directly
-    const base64Image = imageData.data[0].b64_json;
+    console.log('OpenAI Response:', imageData);
     
-    // Convert base64 to blob
-    const imageBlob = new Blob([Uint8Array.from(atob(base64Image), c => c.charCodeAt(0))], { type: 'image/png' });
+    let imageBlob;
+    if (imageData.data?.[0]?.b64_json) {
+      // gpt-image-1 returns base64 data directly
+      const base64Image = imageData.data[0].b64_json;
+      // Convert base64 to blob
+      imageBlob = new Blob([Uint8Array.from(atob(base64Image), c => c.charCodeAt(0))], { type: 'image/png' });
+    } else if (imageData.data?.[0]?.url) {
+      // Some models return URL instead
+      const imageResponse = await fetch(imageData.data[0].url);
+      imageBlob = await imageResponse.blob();
+    } else {
+      throw new Error('No image data received from OpenAI');
+    }
 
     const fileName = `meme-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
 
@@ -184,6 +200,10 @@ serve(async (req) => {
       .update({ credits: profile.credits - 1 })
       .eq('user_id', user.id);
 
+    console.log('=== MEME GENERATION SUCCESS ===');
+    console.log('Meme ID:', meme.id);
+    console.log('Credits remaining:', profile.credits - 1);
+    
     return new Response(
       JSON.stringify({ 
         meme,
@@ -193,9 +213,22 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in generate-meme function:', error);
+    console.error('=== MEME GENERATION ERROR ===');
+    console.error('Error details:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    // Return more helpful error messages in development
+    const errorMessage = import.meta.env?.MODE === 'development' 
+      ? error instanceof Error ? error.message : 'Unknown error'
+      : 'Erreur interne';
+      
     return new Response(
-      JSON.stringify({ error: 'Erreur interne' }),
+      JSON.stringify({ 
+        error: errorMessage,
+        ...(import.meta.env?.MODE === 'development' && { 
+          details: error instanceof Error ? error.stack : error 
+        })
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }

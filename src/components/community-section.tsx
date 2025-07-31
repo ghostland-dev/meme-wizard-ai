@@ -86,9 +86,9 @@ export function CommunitySection() {
                     <Icon className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-2xl font-bold">{stat.value}</CardTitle>
-                  <CardDescription className="flex items-center justify-center gap-2">
+                  <CardDescription>
                     <span>{stat.label}</span>
-                    <Badge variant="secondary" className="text-green-600">
+                    <Badge variant="secondary" className="text-green-600 ml-2">
                       {stat.trend}
                     </Badge>
                   </CardDescription>

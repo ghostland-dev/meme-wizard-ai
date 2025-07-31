@@ -88,11 +88,17 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
     }
 
     if (userCredits <= 0) {
-      toast.error("Crédits insuffisants pour générer un meme");
+      toast.error("Crédits insuffisants", {
+        action: {
+          label: "Acheter des crédits",
+          onClick: () => window.location.href = "/pricing"
+        }
+      });
       return;
     }
 
     setIsGenerating(true);
+    const startTime = Date.now();
     
     try {
       const { data, error } = await supabase.functions.invoke('generate-meme', {
@@ -104,16 +110,34 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
       });
 
       if (error) {
-        throw error;
+        console.error('Generation error:', error);
+        
+        // More specific error messages
+        if (error.message.includes('non-2xx status code')) {
+          toast.error("Erreur de génération. Veuillez réessayer dans quelques instants.");
+        } else if (error.message.includes('timeout')) {
+          toast.error("La génération prend plus de temps que prévu. Veuillez réessayer.");
+        } else if (error.message.includes('insufficient') || error.message.includes('Crédits insuffisants')) {
+          toast.error("Crédits insuffisants pour cette opération.");
+        } else {
+          toast.error("Erreur lors de la génération du meme. Veuillez réessayer.");
+        }
+        return;
       }
+
+      const generationTime = Date.now() - startTime;
+      console.log(`Meme generated in ${generationTime}ms`);
 
       setGeneratedMeme(data.meme);
       setUserCredits(data.creditsRemaining);
-      toast.success("Meme généré avec succès !");
+      
+      toast.success("Meme généré avec succès!", {
+        description: `Généré en ${(generationTime / 1000).toFixed(1)}s`
+      });
       
     } catch (error: any) {
-      console.error('Generation error:', error);
-      toast.error(error.message || "Erreur lors de la génération");
+      console.error('Unexpected error:', error);
+      toast.error("Une erreur inattendue s'est produite. Veuillez réessayer.");
     } finally {
       setIsGenerating(false);
     }
