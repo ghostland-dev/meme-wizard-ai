@@ -3,7 +3,10 @@ import { FeaturesSection } from "@/components/features-section";
 import { MemeUpload } from "@/components/meme-upload";
 import { MemeExamples } from "@/components/meme-examples";
 import { TestimonialsSection } from "@/components/testimonials-section";
+import { HowItWorksSection } from "@/components/how-it-works-section";
+import { FAQSection } from "@/components/faq-section";
 import { PricingSection } from "@/components/pricing-section";
+import { Footer } from "@/components/footer";
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
@@ -33,9 +36,15 @@ const Index = () => {
       
       <TestimonialsSection />
       
+      <HowItWorksSection />
+      
+      <FAQSection />
+      
       <Separator className="opacity-20" />
       
       <PricingSection />
+      
+      <Footer />
     </div>
   );
 };
