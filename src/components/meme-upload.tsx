@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, Image, X, Sparkles, Zap, Loader2, Download, Share2 } from "lucide-react";
+import { Upload, Image, X, Sparkles, Zap, Loader2, Download, Share2, TrendingUp, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -178,201 +178,276 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Credits Display */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold">Crédits disponibles</h3>
-          <p className="text-muted-foreground">Chaque génération coûte 1 crédit</p>
-        </div>
-        <Badge variant="secondary" className="text-lg px-4 py-2">
-          {userCredits} crédits
-        </Badge>
-      </div>
+    <div className="space-y-8">
+      {/* Enhanced credits display */}
+      <Card className="bg-gradient-to-r from-primary/5 via-accent/5 to-secondary/5 border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                Crédits disponibles
+              </h3>
+              <p className="text-muted-foreground">Chaque génération coûte 1 crédit</p>
+            </div>
+            <div className="text-right">
+              <Badge variant="secondary" className="text-2xl px-6 py-3 bg-gradient-viral text-white">
+                {userCredits} crédits
+              </Badge>
+              {userCredits <= 3 && (
+                <p className="text-xs text-destructive mt-1">Presque épuisé !</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Upload Zone */}
-        <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary">
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Enhanced upload zone */}
+        <Card className="group hover:scale-105 transition-all duration-500 hover:shadow-glow-primary border-2 border-dashed border-primary/30 hover:border-primary/60">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
+              <Upload className="h-5 w-5 text-primary" />
               Image Source (Optionnel)
             </CardTitle>
             <CardDescription>
-              Uploadez une image ou laissez l'IA créer from scratch
+              Uploadez une image pour personnaliser ou laissez l'IA créer from scratch
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-                ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'}
+              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300
+                ${isDragActive 
+                  ? 'border-primary bg-primary/10 scale-105' 
+                  : 'border-muted-foreground/25 hover:border-primary/60 hover:bg-primary/5'
+                }
               `}
             >
               <input {...getInputProps()} />
               {uploadedImages.length > 0 ? (
                 <div className="space-y-4">
-                  <Image className="h-12 w-12 mx-auto text-primary" />
-                  <div>
-                    <p className="font-semibold">{uploadedImages[0].file.name}</p>
-                    <Badge variant="secondary" className="mt-2">
-                      Image prête
-                    </Badge>
+                  <div className="relative group">
+                    <img
+                      src={uploadedImages[0].preview}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg border shadow-lg transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg flex items-center justify-center">
+                      <Badge className="bg-gradient-viral text-white">
+                        <Image className="h-3 w-3 mr-1" />
+                        Image prête
+                      </Badge>
+                    </div>
+                    <button
+                      onClick={() => removeImage(uploadedImages[0].id)}
+                      className="absolute top-2 right-2 p-2 bg-destructive/90 rounded-full hover:scale-110 transition-transform shadow-lg"
+                    >
+                      <X className="h-4 w-4 text-white" />
+                    </button>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-primary">{uploadedImages[0].file.name}</p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setUploadedImages([])}
+                      className="mt-3 hover:bg-destructive/10 hover:border-destructive"
+                      size="sm"
+                    >
+                      <X className="h-3 w-3 mr-1" />
+                      Supprimer l'image
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                <div className="space-y-6">
+                  <div className="relative">
+                    <Upload className={`h-16 w-16 mx-auto transition-all duration-300 ${
+                      isDragActive ? 'text-primary scale-110' : 'text-muted-foreground group-hover:text-primary'
+                    }`} />
+                    {isDragActive && (
+                      <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                    )}
+                  </div>
                   <div>
-                    <p className="text-lg font-semibold">
-                      {isDragActive ? "Déposez votre image ici" : "Glissez une image ou cliquez"}
+                    <p className="text-xl font-semibold">
+                      {isDragActive ? "Déposez votre image ici !" : "Glissez une image ou cliquez"}
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
-                      PNG, JPG, WebP jusqu'à 10MB (optionnel)
+                      PNG, JPG, WebP jusqu'à 10MB • Recommandé: 1024x1024px
                     </p>
+                    <Badge variant="outline" className="mt-3">
+                      Complètement optionnel
+                    </Badge>
                   </div>
                 </div>
               )}
             </div>
-            {uploadedImages.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <div className="relative">
-                  <img
-                    src={uploadedImages[0].preview}
-                    alt="Preview"
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                  <button
-                    onClick={() => removeImage(uploadedImages[0].id)}
-                    className="absolute top-2 right-2 p-1 bg-destructive rounded-full hover:scale-110 transition-transform"
-                  >
-                    <X className="h-3 w-3 text-destructive-foreground" />
-                  </button>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setUploadedImages([])}
-                  className="w-full"
-                >
-                  Supprimer l'image
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {/* AI Generation */}
-        <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary">
+        {/* Enhanced AI generation */}
+        <Card className="group hover:scale-105 transition-all duration-500 hover:shadow-glow-accent border-2 border-accent/30 hover:border-accent/60">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Générateur IA
+              <Sparkles className="h-5 w-5 text-accent animate-pulse" />
+              Générateur IA Avancé
             </CardTitle>
             <CardDescription>
-              Décrivez votre meme et choisissez le style
+              Décrivez votre vision et notre IA créera le meme parfait
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="prompt">Description du meme</Label>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="prompt" className="text-base font-semibold flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                Description détaillée du meme
+              </Label>
               <Textarea
                 id="prompt"
-                placeholder="Ex: Un chat qui porte des lunettes de soleil avec le texte 'Deal with it'"
+                placeholder="Ex: Un chat qui porte des lunettes de soleil avec le texte 'Deal with it' en style viral TikTok"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                rows={3}
+                rows={4}
+                className="resize-none text-base transition-all duration-300 focus:ring-2 focus:ring-primary/50"
               />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className={`px-2 py-1 rounded ${prompt.length > 10 ? 'bg-success/20 text-success' : 'bg-muted'}`}>
+                  {prompt.length} caractères
+                </span>
+                <span>Plus c'est détaillé, meilleur sera le résultat !</span>
+              </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="style">Style</Label>
+            <div className="space-y-3">
+              <Label htmlFor="style" className="text-base font-semibold flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-secondary" />
+                Style de meme
+              </Label>
               <Select value={style} onValueChange={setStyle}>
-                <SelectTrigger>
+                <SelectTrigger className="text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="viral">🔥 Viral</SelectItem>
-                  <SelectItem value="funny">😂 Drôle</SelectItem>
-                  <SelectItem value="classic">📱 Classic</SelectItem>
-                  <SelectItem value="dark">🖤 Dark Humor</SelectItem>
+                  <SelectItem value="viral">🔥 Viral - Tendance & Shareable</SelectItem>
+                  <SelectItem value="funny">😂 Drôle - Humour Classique</SelectItem>
+                  <SelectItem value="classic">📱 Classic - Meme Traditionnel</SelectItem>
+                  <SelectItem value="dark">🖤 Dark Humor - Humour Noir</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <Button 
-              className="w-full" 
+              className="w-full text-lg py-6" 
               size="lg"
               onClick={generateMeme}
-              disabled={isGenerating || userCredits <= 0}
+              disabled={isGenerating || userCredits <= 0 || !prompt.trim()}
+              variant={isGenerating ? "secondary" : "viral"}
             >
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Génération en cours...
+                  Génération en cours... ✨
                 </>
               ) : (
                 <>
-                  <Zap className="mr-2 h-5 w-5" />
-                  Générer un Meme Viral
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Générer un Meme Viral 🚀
                 </>
               )}
             </Button>
 
             {userCredits <= 0 && (
-              <p className="text-sm text-destructive text-center">
-                Crédits insuffisants. Rechargez votre compte !
+              <Card className="bg-destructive/10 border-destructive/20">
+                <CardContent className="pt-4">
+                  <p className="text-sm text-destructive text-center font-semibold">
+                    ⚠️ Crédits insuffisants. Rechargez votre compte pour continuer !
+                  </p>
+                  <Button asChild className="w-full mt-3" size="sm">
+                    <a href="/pricing">Acheter des crédits</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {!prompt.trim() && (
+              <p className="text-xs text-muted-foreground text-center">
+                💡 Astuce: Plus votre description est détaillée, plus le meme sera précis !
               </p>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Generated Meme Display */}
+      {/* Enhanced generated meme display */}
       {generatedMeme && (
-        <Card className="mt-8">
+        <Card className="mt-8 bg-gradient-to-br from-success/5 via-background to-primary/5 border-success/30 animate-fade-in">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Image className="h-5 w-5" />
-              Votre Meme Généré
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Image className="h-6 w-6 text-success" />
+              🎉 Votre Meme Viral est Prêt !
             </CardTitle>
             <CardDescription>
-              Téléchargez ou partagez votre création
+              Téléchargez, partagez et faites exploser vos métriques
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="text-center">
-              <img 
-                src={generatedMeme.generated_image_url} 
-                alt="Generated meme"
-                className="max-w-full h-auto rounded-lg border shadow-lg mx-auto"
-                style={{ maxHeight: "500px" }}
-              />
+              <div className="relative group inline-block">
+                <img 
+                  src={generatedMeme.generated_image_url} 
+                  alt="Generated meme"
+                  className="max-w-full h-auto rounded-xl border-2 border-success/30 shadow-2xl mx-auto transition-transform duration-300 group-hover:scale-105"
+                  style={{ maxHeight: "600px" }}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-xl" />
+              </div>
             </div>
             
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button onClick={downloadMeme} variant="outline">
+            {/* Enhanced action buttons */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Button onClick={downloadMeme} variant="outline" className="hover:bg-success/10 hover:border-success">
                 <Download className="mr-2 h-4 w-4" />
                 Télécharger
               </Button>
-              <Button onClick={() => shareToSocial('twitter')} variant="outline">
+              <Button onClick={() => shareToSocial('twitter')} variant="outline" className="hover:bg-blue-500/10 hover:border-blue-500">
                 <Share2 className="mr-2 h-4 w-4" />
                 Twitter
               </Button>
-              <Button onClick={() => shareToSocial('facebook')} variant="outline">
+              <Button onClick={() => shareToSocial('facebook')} variant="outline" className="hover:bg-blue-600/10 hover:border-blue-600">
                 <Share2 className="mr-2 h-4 w-4" />
                 Facebook
               </Button>
-              <Button onClick={() => shareToSocial('reddit')} variant="outline">
+              <Button onClick={() => shareToSocial('reddit')} variant="outline" className="hover:bg-orange-500/10 hover:border-orange-500">
                 <Share2 className="mr-2 h-4 w-4" />
                 Reddit
               </Button>
             </div>
             
-            <div className="text-center">
-              <Badge variant="secondary">
-                Style: {style} • Crédits restants: {userCredits}
+            {/* Meme info */}
+            <div className="flex flex-wrap justify-center gap-3">
+              <Badge variant="secondary" className="bg-gradient-viral text-white">
+                Style: {style}
+              </Badge>
+              <Badge variant="outline" className="border-success text-success">
+                <Zap className="h-3 w-3 mr-1" />
+                {userCredits} crédits restants
+              </Badge>
+              <Badge variant="outline">
+                <Clock className="h-3 w-3 mr-1" />
+                Généré à l'instant
               </Badge>
             </div>
+
+            {/* Quick tips */}
+            <Card className="bg-primary/5 border-primary/20">
+              <CardContent className="pt-4">
+                <p className="text-sm text-center">
+                  <Sparkles className="inline h-4 w-4 mr-1 text-primary" />
+                  <strong>Pro tip:</strong> Les memes performent mieux quand postés entre 18h-20h sur les réseaux sociaux !
+                </p>
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
       )}
