@@ -8,6 +8,7 @@ import { OfflineIndicator } from "@/components/offline-indicator";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { Layout } from "@/components/layout";
 import { AuthGuard } from "@/components/auth-guard";
+import { ThemeProvider } from "@/components/theme-provider";
 import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
 import Analytics from "./pages/Analytics";
@@ -34,15 +35,16 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <OfflineIndicator />
-        <BrowserRouter>
-          <AnalyticsTracker />
-          <AuthGuard>
-            <Layout>
+    <ThemeProvider defaultTheme="system" storageKey="meme-wizard-theme">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <OfflineIndicator />
+          <BrowserRouter>
+            <AnalyticsTracker />
+            <AuthGuard>
+              <Layout>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/gallery" element={<Gallery />} />
@@ -55,11 +57,12 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Layout>
-          </AuthGuard>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+              </Layout>
+            </AuthGuard>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 

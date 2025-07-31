@@ -72,6 +72,7 @@ export default {
 				'gradient-electric': 'var(--gradient-electric)',
 				'gradient-neon': 'var(--gradient-neon)',
 				'gradient-dark': 'var(--gradient-dark)',
+				'gradient-darker': 'var(--gradient-darker)',
 			},
 			boxShadow: {
 				'glow-primary': 'var(--glow-primary)',

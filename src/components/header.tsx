@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Shield
 } from 'lucide-react';
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -102,6 +103,9 @@ export function Header({ onMenuToggle }: HeaderProps) {
 
         {/* Right side - User Menu */}
         <div className="flex items-center gap-3">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Credits Badge */}
           {user && (
             <Badge variant="outline" className="gap-1">

@@ -9,15 +9,15 @@ export function HeroSection() {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
       {/* Background with hero image */}
       <div className="absolute inset-0 z-0">
         <img 
           src={heroImage}
           alt="AI Meme Factory"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover opacity-20 dark:opacity-10"
         />
-        <div className="absolute inset-0 bg-gradient-dark opacity-90"></div>
+        <div className="absolute inset-0 bg-gradient-dark dark:bg-gradient-darker opacity-90"></div>
       </div>
 
       {/* Animated background elements */}
@@ -35,11 +35,11 @@ export function HeroSection() {
 
         {/* Main headline */}
         <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
-          <span className="block text-white mb-2">AI Meme Factory</span>
+          <span className="block text-foreground mb-2">AI Meme Factory</span>
           <span className="bg-gradient-viral bg-clip-text text-transparent">
             L'Usine à Viralité
           </span>
-          <span className="block text-white text-3xl md:text-4xl mt-4">
+          <span className="block text-foreground text-3xl md:text-4xl mt-4">
             Automatisée
           </span>
         </h1>
@@ -87,7 +87,7 @@ export function HeroSection() {
           <Button
             variant="outline"
             size="lg"
-            className="text-lg px-8 py-6 border-white/20 text-white hover:bg-white/10"
+            className="text-lg px-8 py-6 border-primary/20 text-foreground hover:bg-primary/10"
           >
             <TrendingUp className="h-5 w-5" />
             Voir la Demo Live
@@ -111,7 +111,7 @@ export function HeroSection() {
         </div>
 
         {/* Special offer */}
-        <div className="mt-12 p-6 bg-gradient-neon rounded-xl max-w-2xl mx-auto text-white">
+        <div className="mt-12 p-6 bg-gradient-neon rounded-xl max-w-2xl mx-auto text-white shadow-glow-primary">
           <p className="text-lg font-bold mb-2">🎯 Offre de Lancement Limitée</p>
           <p className="text-sm opacity-90">
             Les 100 premiers clients payent seulement <span className="font-bold">29€/mois</span> 

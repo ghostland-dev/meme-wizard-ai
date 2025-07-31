@@ -27,18 +27,21 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <HeroSection />
       
+      <div className="border-t border-border/20"></div>
+      
       <FeaturesSection />
       
       <Separator className="opacity-20" />
       
-      <section className="py-24 px-4" id="upload">
+      <section className="py-24 px-4 bg-muted/50" id="upload">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Créez votre <span className="bg-gradient-viral bg-clip-text text-transparent">Meme</span>
             </h2>
-            <p className="text-lg text-muted-foreground">
-              Décrivez votre idée et laissez notre IA créer le meme parfait pour vous
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Décrivez votre idée et laissez notre IA créer le meme parfait pour vous. 
+              Générez des memes viraux en quelques secondes avec notre technologie avancée.
             </p>
           </div>
           <MemeUpload />
@@ -47,9 +50,11 @@ const Index = () => {
       
       <MemeExamples />
       
-      <CommunitySection />
-      
-      <TestimonialsSection />
+      <div className="bg-gradient-to-b from-background to-muted/30">
+        <CommunitySection />
+        
+        <TestimonialsSection />
+      </div>
       
       <HowItWorksSection />
       
