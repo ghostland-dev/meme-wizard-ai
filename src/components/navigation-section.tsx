@@ -82,16 +82,16 @@ export function NavigationSection() {
           <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary text-center">
             <CardHeader>
               <Star className="h-12 w-12 mx-auto text-primary mb-2" />
-              <CardTitle className="text-lg">Memes Populaires</CardTitle>
+              <CardTitle className="text-lg">Acheter des Crédits</CardTitle>
               <CardDescription>
-                Découvrez les créations qui font le buzz
+                Obtenez plus de crédits pour créer sans limite
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <a href="/gallery?sort=most_viewed">
+                <a href="/pricing">
                   <Star className="mr-2 h-4 w-4" />
-                  Voir le top
+                  Acheter des crédits
                 </a>
               </Button>
             </CardContent>
