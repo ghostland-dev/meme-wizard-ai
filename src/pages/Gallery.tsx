@@ -22,7 +22,7 @@ interface Meme {
   status: string;
 }
 
-export function MemeGallery() {
+export default function Gallery() {
   const [memes, setMemes] = useState<Meme[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -109,16 +109,30 @@ export function MemeGallery() {
 
   const incrementMemeStats = async (memeId: string, field: 'views' | 'likes' | 'shares') => {
     try {
-      const { error } = await supabase.rpc('increment_meme_stat', {
-        meme_id: memeId,
-        stat_field: field
-      });
+      // Simple increment using raw SQL
+      const currentMeme = memes.find(m => m.id === memeId);
+      if (!currentMeme) return;
+
+      const newValue = currentMeme[field] + 1;
+      const { error } = await supabase
+        .from('memes')
+        .update({ 
+          [field]: newValue,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', memeId);
 
       if (error) {
         console.error('Error incrementing stat:', error);
       } else {
-        // Refresh memes to show updated stats
-        fetchMemes();
+        // Update local state
+        setMemes(prevMemes => 
+          prevMemes.map(meme => 
+            meme.id === memeId 
+              ? { ...meme, [field]: newValue }
+              : meme
+          )
+        );
       }
     } catch (error) {
       console.error('Error incrementing stat:', error);
@@ -230,7 +244,6 @@ export function MemeGallery() {
                     src={meme.generated_image_url}
                     alt={meme.title}
                     className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                    onLoad={() => incrementMemeStats(meme.id, 'views')}
                   />
                   <div className="absolute top-2 right-2">
                     <DropdownMenu>

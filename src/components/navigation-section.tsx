@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Gallery, Zap, TrendingUp, Users, Star } from "lucide-react";
+import { Images, Zap, TrendingUp, Users, Star } from "lucide-react";
 
 export function NavigationSection() {
   return (
@@ -19,7 +19,7 @@ export function NavigationSection() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary text-center">
             <CardHeader>
-              <Gallery className="h-12 w-12 mx-auto text-primary mb-2" />
+              <Images className="h-12 w-12 mx-auto text-primary mb-2" />
               <CardTitle className="text-lg">Ma Galerie</CardTitle>
               <CardDescription>
                 Tous vos memes créés en un seul endroit
@@ -28,7 +28,7 @@ export function NavigationSection() {
             <CardContent>
               <Button asChild className="w-full">
                 <a href="/gallery">
-                  <Gallery className="mr-2 h-4 w-4" />
+                  <Images className="mr-2 h-4 w-4" />
                   Voir la galerie
                 </a>
               </Button>

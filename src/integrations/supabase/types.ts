@@ -150,7 +150,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_meme_stat: {
+        Args: { meme_id: string; stat_field: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
