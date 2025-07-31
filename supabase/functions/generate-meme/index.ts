@@ -88,11 +88,12 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-image-1',
+        model: 'dall-e-3',
         prompt: memePrompt,
+        n: 1,
         size: '1024x1024',
-        quality: 'medium',
-        output_format: 'png'
+        quality: 'standard',
+        response_format: 'url'
       }),
     });
 
@@ -121,19 +122,11 @@ serve(async (req) => {
     const imageData = await response.json();
     console.log('OpenAI Response:', imageData);
     
-    let imageBlob;
-    if (imageData.data?.[0]?.b64_json) {
-      // gpt-image-1 returns base64 data directly
-      const base64Image = imageData.data[0].b64_json;
-      // Convert base64 to blob
-      imageBlob = new Blob([Uint8Array.from(atob(base64Image), c => c.charCodeAt(0))], { type: 'image/png' });
-    } else if (imageData.data?.[0]?.url) {
-      // Some models return URL instead
-      const imageResponse = await fetch(imageData.data[0].url);
-      imageBlob = await imageResponse.blob();
-    } else {
-      throw new Error('No image data received from OpenAI');
-    }
+    const generatedImageUrl = imageData.data[0].url;
+    
+    // Download and store the image in Supabase Storage
+    const imageResponse = await fetch(generatedImageUrl);
+    const imageBlob = await imageResponse.blob();
 
     const fileName = `meme-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
 
