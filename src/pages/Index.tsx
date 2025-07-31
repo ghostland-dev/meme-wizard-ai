@@ -1,5 +1,8 @@
 import { HeroSection } from "@/components/hero-section";
+import { FeaturesSection } from "@/components/features-section";
 import { MemeUpload } from "@/components/meme-upload";
+import { MemeExamples } from "@/components/meme-examples";
+import { TestimonialsSection } from "@/components/testimonials-section";
 import { PricingSection } from "@/components/pricing-section";
 import { Separator } from "@/components/ui/separator";
 
@@ -7,6 +10,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <HeroSection />
+      
+      <FeaturesSection />
       
       <Separator className="opacity-20" />
       
@@ -23,6 +28,10 @@ const Index = () => {
           <MemeUpload />
         </div>
       </section>
+      
+      <MemeExamples />
+      
+      <TestimonialsSection />
       
       <Separator className="opacity-20" />
       
