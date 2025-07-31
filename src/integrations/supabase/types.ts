@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      meme_generations: {
+        Row: {
+          cost_credits: number | null
+          created_at: string
+          error_message: string | null
+          generation_time_ms: number | null
+          id: string
+          meme_id: string | null
+          model_used: string
+          prompt: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          cost_credits?: number | null
+          created_at?: string
+          error_message?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          meme_id?: string | null
+          model_used: string
+          prompt: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          cost_credits?: number | null
+          created_at?: string
+          error_message?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          meme_id?: string | null
+          model_used?: string
+          prompt?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meme_generations_meme_id_fkey"
+            columns: ["meme_id"]
+            isOneToOne: false
+            referencedRelation: "memes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memes: {
+        Row: {
+          created_at: string
+          description: string | null
+          generated_image_url: string | null
+          id: string
+          image_url: string
+          likes: number | null
+          prompt: string
+          shares: number | null
+          status: string | null
+          style: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          views: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          generated_image_url?: string | null
+          id?: string
+          image_url: string
+          likes?: number | null
+          prompt: string
+          shares?: number | null
+          status?: string | null
+          style?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          views?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          generated_image_url?: string | null
+          id?: string
+          image_url?: string
+          likes?: number | null
+          prompt?: string
+          shares?: number | null
+          status?: string | null
+          style?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          credits: number | null
+          display_name: string | null
+          id: string
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          credits?: number | null
+          display_name?: string | null
+          id?: string
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          credits?: number | null
+          display_name?: string | null
+          id?: string
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
