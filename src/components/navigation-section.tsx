@@ -38,26 +38,18 @@ export function NavigationSection() {
           <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary text-center">
             <CardHeader>
               <TrendingUp className="h-12 w-12 mx-auto text-primary mb-2" />
-              <CardTitle className="text-lg">Statistiques</CardTitle>
+              <CardTitle className="text-lg">Analytics</CardTitle>
               <CardDescription>
                 Suivez les performances de vos memes
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Vues totales:</span>
-                  <Badge variant="secondary">2.5K</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Partages:</span>
-                  <Badge variant="secondary">156</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Likes:</span>
-                  <Badge variant="secondary">89</Badge>
-                </div>
-              </div>
+              <Button asChild variant="outline" className="w-full">
+                <a href="/analytics">
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  Voir les stats
+                </a>
+              </Button>
             </CardContent>
           </Card>
 
