@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { Layout } from "@/components/layout";
 import { AuthGuard } from "@/components/auth-guard";
 import Index from "./pages/Index";
 import Gallery from "./pages/Gallery";
@@ -14,6 +15,7 @@ import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import UserProfile from "./pages/UserProfile";
 import HealthCheck from "./pages/HealthCheck";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 
 // Configure React Query with production-ready defaults
@@ -40,17 +42,20 @@ const App = () => (
         <BrowserRouter>
           <AnalyticsTracker />
           <AuthGuard>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/health" element={<HealthCheck />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/health" element={<HealthCheck />} />
+                <Route path="/help" element={<Help />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
           </AuthGuard>
         </BrowserRouter>
       </TooltipProvider>

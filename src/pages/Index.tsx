@@ -1,17 +1,28 @@
+import { useEffect } from "react";
 import { HeroSection } from "@/components/hero-section";
 import { FeaturesSection } from "@/components/features-section";
 import { MemeUpload } from "@/components/meme-upload";
 import { MemeExamples } from "@/components/meme-examples";
-import { NavigationSection } from "@/components/navigation-section";
 import { CommunitySection } from "@/components/community-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { HowItWorksSection } from "@/components/how-it-works-section";
 import { FAQSection } from "@/components/faq-section";
 import { PricingSection } from "@/components/pricing-section";
-import { Footer } from "@/components/footer";
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
+  // Scroll to upload section if hash is present
+  useEffect(() => {
+    if (window.location.hash === '#upload') {
+      setTimeout(() => {
+        document.getElementById('upload')?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <HeroSection />
@@ -24,10 +35,10 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Uploadez & <span className="bg-gradient-viral bg-clip-text text-transparent">Viralisez</span>
+              Créez votre <span className="bg-gradient-viral bg-clip-text text-transparent">Meme</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Glissez vos images, notre IA génère des memes qui cartonnent
+              Décrivez votre idée et laissez notre IA créer le meme parfait pour vous
             </p>
           </div>
           <MemeUpload />
@@ -35,8 +46,6 @@ const Index = () => {
       </section>
       
       <MemeExamples />
-      
-      <NavigationSection />
       
       <CommunitySection />
       
@@ -49,8 +58,6 @@ const Index = () => {
       <Separator className="opacity-20" />
       
       <PricingSection />
-      
-      <Footer />
     </div>
   );
 };
