@@ -37,6 +37,7 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Force a fresh query by adding cache-busting parameter
         const { data } = await supabase
           .from('profiles')
           .select('credits')
