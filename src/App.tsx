@@ -12,6 +12,7 @@ import Gallery from "./pages/Gallery";
 import Analytics from "./pages/Analytics";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import UserProfile from "./pages/UserProfile";
 import NotFound from "./pages/NotFound";
 
 // Configure React Query with production-ready defaults
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/profile" element={<UserProfile />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
