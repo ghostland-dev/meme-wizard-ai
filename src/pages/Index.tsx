@@ -8,6 +8,9 @@ import { TestimonialsSection } from "@/components/testimonials-section";
 import { HowItWorksSection } from "@/components/how-it-works-section";
 import { FAQSection } from "@/components/faq-section";
 import { PricingSection } from "@/components/pricing-section";
+import { TrustSection } from "@/components/landing/trust-section";
+import { SocialProofSection } from "@/components/landing/social-proof-section";
+import { CTASection } from "@/components/landing/cta-section";
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
@@ -27,9 +30,15 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <HeroSection />
       
+      {/* Trust indicators */}
+      <TrustSection />
+      
       <div className="border-t border-border/20"></div>
       
       <FeaturesSection />
+      
+      {/* Social proof with live metrics */}
+      <SocialProofSection />
       
       <Separator className="opacity-20" />
       
@@ -57,6 +66,9 @@ const Index = () => {
       </div>
       
       <HowItWorksSection />
+      
+      {/* Enhanced CTA section */}
+      <CTASection />
       
       <FAQSection />
       

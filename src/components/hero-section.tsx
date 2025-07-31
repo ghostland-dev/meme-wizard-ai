@@ -29,14 +29,14 @@ export function HeroSection() {
 
       <div className="relative z-20 max-w-7xl mx-auto px-4 py-24 text-center">
         {/* Badge */}
-        <Badge className="mb-6 bg-gradient-viral text-white text-sm px-4 py-2 animate-bounce">
+        <Badge className="mb-6 bg-gradient-viral text-white text-sm px-4 py-2 animate-fade-in">
           🚀 #1 Plateforme de Memes Viraux en France
         </Badge>
 
         {/* Main headline */}
-        <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+        <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight animate-fade-in">
           <span className="block text-foreground mb-2">AI Meme Factory</span>
-          <span className="bg-gradient-viral bg-clip-text text-transparent">
+          <span className="bg-gradient-viral bg-clip-text text-transparent animate-pulse-glow">
             L'Usine à Viralité
           </span>
           <span className="block text-foreground text-3xl md:text-4xl mt-4">
@@ -45,7 +45,7 @@ export function HeroSection() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto mb-12">
+        <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           Générez <span className="text-accent font-bold">50+ memes personnalisés</span> en 1 clic, 
           avec analyse de performance en temps réel. 
           <span className="text-success font-bold"> +300% d'engagement garantis</span> 🔥
