@@ -173,8 +173,13 @@ serve(async (req) => {
       status: 'completed'
     });
 
-    // Decrease user credits
-    await supabaseClient
+    // Decrease user credits using service role for reliable update
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    
+    await supabaseAdmin
       .from('profiles')
       .update({ credits: profile.credits - 1 })
       .eq('user_id', user.id);
