@@ -38,6 +38,12 @@ const mainNavItems = [
     badge: null
   },
   {
+    title: 'Tableau de bord',
+    url: '/dashboard',
+    icon: BarChart3,
+    badge: 'Nouveau'
+  },
+  {
     title: 'Créer un meme',
     url: '/#upload',
     icon: Upload,
@@ -52,7 +58,7 @@ const mainNavItems = [
   {
     title: 'Analytics',
     url: '/analytics',
-    icon: BarChart3,
+    icon: TrendingUp,
     badge: null
   }
 ];

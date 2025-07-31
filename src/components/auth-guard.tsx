@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WelcomeFlow } from "@/components/welcome-flow";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
@@ -18,6 +19,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -26,6 +29,34 @@ export function AuthGuard({ children }: AuthGuardProps) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Check for new signups to show welcome flow
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is a new user by checking profile creation time
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('created_at')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              if (profile) {
+                const createdAt = new Date(profile.created_at);
+                const now = new Date();
+                const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+                
+                // Show welcome for users created in the last 5 minutes
+                if (diffMinutes < 5) {
+                  setShowWelcome(true);
+                  setIsNewUser(true);
+                }
+              }
+            } catch (error) {
+              console.log('Profile check error:', error);
+            }
+          }, 1000);
+        }
       }
     );
 
@@ -95,6 +126,11 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
   if (!user) {
     return <AuthForm onSignUp={handleSignUp} onSignIn={handleSignIn} loading={authLoading} />;
+  }
+
+  // Show welcome flow for new users
+  if (user && showWelcome && isNewUser) {
+    return <WelcomeFlow user={user} onComplete={() => setShowWelcome(false)} />;
   }
 
   return (

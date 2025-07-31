@@ -18,6 +18,7 @@ import UserProfile from "./pages/UserProfile";
 import HealthCheck from "./pages/HealthCheck";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
 
 // Configure React Query with production-ready defaults
 const queryClient = new QueryClient({
@@ -47,6 +48,7 @@ const App = () => (
               <Layout>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/pricing" element={<Pricing />} />
