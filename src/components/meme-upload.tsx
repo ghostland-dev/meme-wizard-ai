@@ -1,9 +1,15 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, Image, X, Sparkles } from "lucide-react";
+import { Upload, Image, X, Sparkles, Zap, Loader2, Download, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface UploadedImage {
   id: string;
@@ -17,7 +23,34 @@ interface MemeUploadProps {
 
 export function MemeUpload({ onImagesChange }: MemeUploadProps) {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  const { toast } = useToast();
+  const [prompt, setPrompt] = useState("");
+  const [style, setStyle] = useState("viral");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedMeme, setGeneratedMeme] = useState<any>(null);
+  const [userCredits, setUserCredits] = useState<number>(0);
+
+  useEffect(() => {
+    fetchUserCredits();
+  }, []);
+
+  const fetchUserCredits = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('credits')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          setUserCredits(data.credits);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching credits:', error);
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newImages = acceptedFiles.map(file => ({
@@ -30,18 +63,15 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
     setUploadedImages(updatedImages);
     onImagesChange?.(updatedImages);
     
-    toast({
-      title: "Images uploadées ! 🚀",
-      description: `${acceptedFiles.length} image(s) prête(s) pour la génération de memes`,
-    });
-  }, [uploadedImages, onImagesChange, toast]);
+    toast.success(`${acceptedFiles.length} image(s) uploadée(s) !`);
+  }, [uploadedImages, onImagesChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'image/*': ['.jpg', '.jpeg', '.png', '.webp']
     },
-    maxFiles: 10
+    maxFiles: 1
   });
 
   const removeImage = (id: string) => {
@@ -50,96 +80,268 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
     onImagesChange?.(updatedImages);
   };
 
-  const generateMemes = () => {
-    if (uploadedImages.length === 0) {
-      toast({
-        title: "Aucune image !",
-        description: "Uploadez au moins une image pour générer des memes",
-        variant: "destructive",
-      });
+  const generateMeme = async () => {
+    if (!prompt.trim()) {
+      toast.error("Veuillez décrire votre meme");
       return;
     }
+
+    if (userCredits <= 0) {
+      toast.error("Crédits insuffisants pour générer un meme");
+      return;
+    }
+
+    setIsGenerating(true);
     
-    toast({
-      title: "Génération en cours... ⚡",
-      description: "L'IA crée vos memes viraux, patience !",
-    });
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-meme', {
+        body: {
+          prompt: prompt.trim(),
+          imageUrl: uploadedImages[0] ? uploadedImages[0].preview : null,
+          style
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setGeneratedMeme(data.meme);
+      setUserCredits(data.creditsRemaining);
+      toast.success("Meme généré avec succès !");
+      
+    } catch (error: any) {
+      console.error('Generation error:', error);
+      toast.error(error.message || "Erreur lors de la génération");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const downloadMeme = () => {
+    if (generatedMeme?.generated_image_url) {
+      const link = document.createElement('a');
+      link.href = generatedMeme.generated_image_url;
+      link.download = `meme-${generatedMeme.id}.png`;
+      link.click();
+    }
+  };
+
+  const shareToSocial = (platform: string) => {
+    const text = `Regardez ce meme génial créé avec AI Meme Factory ! 🔥`;
+    const url = generatedMeme?.generated_image_url;
+    
+    switch (platform) {
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        break;
+      case 'reddit':
+        window.open(`https://reddit.com/submit?title=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        break;
+    }
   };
 
   return (
     <div className="space-y-6">
-      <Card className="p-8">
-        <div
-          {...getRootProps()}
-          className={`
-            relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-            transition-all duration-300 hover:scale-105
-            ${isDragActive 
-              ? 'border-primary bg-primary/5 shadow-glow-primary' 
-              : 'border-muted-foreground/25 hover:border-primary hover:bg-primary/5'
-            }
-          `}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <Upload className="h-12 w-12 text-muted-foreground" />
-              <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-viral rounded-full flex items-center justify-center">
-                <Sparkles className="h-2 w-2 text-white" />
-              </div>
-            </div>
-            <div>
-              <p className="text-lg font-semibold mb-2">
-                {isDragActive ? "Déposez vos images ici !" : "Glissez vos images ou cliquez pour sélectionner"}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Logos, produits, équipe... jusqu'à 10 images (JPG, PNG, WebP)
-              </p>
-            </div>
-          </div>
+      {/* Credits Display */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold">Crédits disponibles</h3>
+          <p className="text-muted-foreground">Chaque génération coûte 1 crédit</p>
         </div>
-      </Card>
+        <Badge variant="secondary" className="text-lg px-4 py-2">
+          {userCredits} crédits
+        </Badge>
+      </div>
 
-      {uploadedImages.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">Images uploadées ({uploadedImages.length})</h3>
-            <Button 
-              onClick={generateMemes}
-              variant="viral"
-              size="lg"
-              className="min-w-[200px]"
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Upload Zone */}
+        <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Image Source (Optionnel)
+            </CardTitle>
+            <CardDescription>
+              Uploadez une image ou laissez l'IA créer from scratch
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
+                ${isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'}
+              `}
             >
-              <Sparkles className="h-4 w-4" />
-              Générer 50+ Memes
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {uploadedImages.map((image) => (
-              <Card key={image.id} className="relative group overflow-hidden">
-                <div className="aspect-square relative">
+              <input {...getInputProps()} />
+              {uploadedImages.length > 0 ? (
+                <div className="space-y-4">
+                  <Image className="h-12 w-12 mx-auto text-primary" />
+                  <div>
+                    <p className="font-semibold">{uploadedImages[0].file.name}</p>
+                    <Badge variant="secondary" className="mt-2">
+                      Image prête
+                    </Badge>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {isDragActive ? "Déposez votre image ici" : "Glissez une image ou cliquez"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      PNG, JPG, WebP jusqu'à 10MB (optionnel)
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {uploadedImages.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <div className="relative">
                   <img
-                    src={image.preview}
-                    alt="Uploaded"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    src={uploadedImages[0].preview}
+                    alt="Preview"
+                    className="w-full h-32 object-cover rounded-lg"
                   />
                   <button
-                    onClick={() => removeImage(image.id)}
-                    className="absolute top-2 right-2 p-1 bg-destructive rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:scale-110"
+                    onClick={() => removeImage(uploadedImages[0].id)}
+                    className="absolute top-2 right-2 p-1 bg-destructive rounded-full hover:scale-110 transition-transform"
                   >
                     <X className="h-3 w-3 text-destructive-foreground" />
                   </button>
                 </div>
-                <div className="p-2">
-                  <p className="text-xs text-muted-foreground truncate">
-                    {image.file.name}
-                  </p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setUploadedImages([])}
+                  className="w-full"
+                >
+                  Supprimer l'image
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* AI Generation */}
+        <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5" />
+              Générateur IA
+            </CardTitle>
+            <CardDescription>
+              Décrivez votre meme et choisissez le style
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="prompt">Description du meme</Label>
+              <Textarea
+                id="prompt"
+                placeholder="Ex: Un chat qui porte des lunettes de soleil avec le texte 'Deal with it'"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={3}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="style">Style</Label>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="viral">🔥 Viral</SelectItem>
+                  <SelectItem value="funny">😂 Drôle</SelectItem>
+                  <SelectItem value="classic">📱 Classic</SelectItem>
+                  <SelectItem value="dark">🖤 Dark Humor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={generateMeme}
+              disabled={isGenerating || userCredits <= 0}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                <>
+                  <Zap className="mr-2 h-5 w-5" />
+                  Générer un Meme Viral
+                </>
+              )}
+            </Button>
+
+            {userCredits <= 0 && (
+              <p className="text-sm text-destructive text-center">
+                Crédits insuffisants. Rechargez votre compte !
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Generated Meme Display */}
+      {generatedMeme && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="h-5 w-5" />
+              Votre Meme Généré
+            </CardTitle>
+            <CardDescription>
+              Téléchargez ou partagez votre création
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-center">
+              <img 
+                src={generatedMeme.generated_image_url} 
+                alt="Generated meme"
+                className="max-w-full h-auto rounded-lg border shadow-lg mx-auto"
+                style={{ maxHeight: "500px" }}
+              />
+            </div>
+            
+            <div className="flex flex-wrap gap-2 justify-center">
+              <Button onClick={downloadMeme} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Télécharger
+              </Button>
+              <Button onClick={() => shareToSocial('twitter')} variant="outline">
+                <Share2 className="mr-2 h-4 w-4" />
+                Twitter
+              </Button>
+              <Button onClick={() => shareToSocial('facebook')} variant="outline">
+                <Share2 className="mr-2 h-4 w-4" />
+                Facebook
+              </Button>
+              <Button onClick={() => shareToSocial('reddit')} variant="outline">
+                <Share2 className="mr-2 h-4 w-4" />
+                Reddit
+              </Button>
+            </div>
+            
+            <div className="text-center">
+              <Badge variant="secondary">
+                Style: {style} • Crédits restants: {userCredits}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
