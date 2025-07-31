@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Images, Zap, TrendingUp, Users, Star } from "lucide-react";
+import { Images, Zap, TrendingUp, Users, Star, User } from "lucide-react";
 
 export function NavigationSection() {
   return (
@@ -84,6 +84,24 @@ export function NavigationSection() {
                 <a href="/pricing">
                   <Star className="mr-2 h-4 w-4" />
                   Acheter des crédits
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:scale-105 transition-all duration-300 hover:shadow-glow-primary text-center">
+            <CardHeader>
+              <User className="h-12 w-12 mx-auto text-primary mb-2" />
+              <CardTitle className="text-lg">Mon Profil</CardTitle>
+              <CardDescription>
+                Gérez votre compte et vos préférences
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <a href="/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  Mon profil
                 </a>
               </Button>
             </CardContent>

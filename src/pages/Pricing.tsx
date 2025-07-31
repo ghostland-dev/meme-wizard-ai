@@ -18,11 +18,16 @@ export default function Pricing() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('credits')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching credits:', error);
+          return;
+        }
         
         if (data) {
           setUserCredits(data.credits);

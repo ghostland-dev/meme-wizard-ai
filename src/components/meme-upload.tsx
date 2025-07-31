@@ -38,14 +38,22 @@ export function MemeUpload({ onImagesChange }: MemeUploadProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         // Force a fresh query by adding cache-busting parameter
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('credits')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Error fetching credits:', error);
+          return;
+        }
         
         if (data) {
           setUserCredits(data.credits);
+        } else {
+          // Profile doesn't exist yet, show default credits
+          setUserCredits(3);
         }
       }
     } catch (error) {

@@ -48,13 +48,29 @@ export default function UserProfile() {
       if (user) {
         setUser(user);
         
-        const { data: profileData } = await supabase
+        const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
-        setProfile(profileData);
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+        
+        if (profileData) {
+          setProfile(profileData);
+        } else {
+          // Create default profile if it doesn't exist
+          const defaultProfile = {
+            user_id: user.id,
+            display_name: user.email?.split('@')[0] || 'Utilisateur',
+            credits: 3,
+            created_at: new Date().toISOString()
+          };
+          setProfile(defaultProfile);
+        }
       }
     } catch (error) {
       console.error('Error loading user data:', error);
